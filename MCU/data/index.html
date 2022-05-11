@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FireFighter Control Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <span class="head"><b>Firefighter Dashboard</b></span>
+  <p><b class="sos">Emergency SOS: </b><span class="out">%STATE%</span></p>
+
+  <p>
+    <a href="/on"><button class="button">ON</button></a>
+    <a href="/off"><button class="button button2">OFF</button></a>
+  </p>
+
+  <p>
+    <span class="sensor-labels1"><b>Environment Temperature:&ensp;</b></span>
+    <span id="temperature" class="out">%TEMPERATURE%</span>
+    <sup class="units">&deg;C</sup>
+  </p>
+
+  <p>
+    <span class="sensor-labels1"><b>Environment Humidity:&ensp;</b></span>
+    <span id="humidity" class="out">%HUMIDITY%</span>
+    <sup class="units">&#37;</sup>
+  </p>
+
+  <p>
+    <span class="info">(smoke is 1 = Smoke Detect)</span><br>
+    <span class="info">(smoke is 2 = Smoke Normal)</span><br>
+    <span class="sensor-labels"><b>Smoke:&ensp;</b></span>
+    <span id="smoke" class="out">%SMOKE%</span>
+  </p>
+</body>
+<script>
+
+  
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("temperature").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/temperature", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("humidity").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/humidity", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("smoke").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/smoke", true);
+    xhttp.send();
+  }, 10000 ) ;
+</script>
+</html>
