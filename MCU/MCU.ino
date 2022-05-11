@@ -133,6 +133,20 @@ String getSmoke(){
   }
 }
 
+String getBPM(){
+  float bpm = Serial.read();
+  return String(bpm);
+}
+
+String  getB_Temperature(){
+  if(digitalRead(body_temp)){
+    return String(3);
+  }
+  else{
+    return String(4);
+  }
+}
+
 
 String processor(const String& var){
   Serial.println(var);
@@ -155,6 +169,12 @@ String processor(const String& var){
   }
   else if (var == "SMOKE"){
     return getSmoke();
+  }
+  else if(var == "BTEMPERATURE"){
+    return  getB_Temperature();
+  }
+  else if(var == "BPM"){
+    return getBPM();
   }
    
 }
@@ -216,6 +236,14 @@ void setup() {
 
   server.on("/smoke", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", getSmoke().c_str(),processor);
+  });
+  
+  server.on("/btemperature", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getB_Temperature().c_str(),processor);
+  });
+
+  server.on("/bpm", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getBPM().c_str(),processor);
   });
   
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,31 +8,59 @@
 </head>
 <body>
   <span class="head"><b>Firefighter Dashboard</b></span>
-  <p><b class="sos">Emergency SOS: </b><span class="out">%STATE%</span></p>
+  <p><b class="sos">Emergency SOS: </b><span class="out1">%STATE%</span></p>
 
   <p>
     <a href="/on"><button class="button">ON</button></a>
     <a href="/off"><button class="button button2">OFF</button></a>
   </p>
+<br>
+  <table class="env">
+    <thead>
+      <tr>
+      <th colspan="2" ><div class="Thead">Environment</div></th>
+      </tr>
+    </thead>
+    <tr>
+      <td class="tname">Name</td>
+      <td class="tname">Value</td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Temperature:</b></span></td>
+      <td><span id="temperature" class="out">%TEMPERATURE%</span></td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Humidity:</b></span></td>
+      <td><span id="humidity" class="out">%HUMIDITY%</span></td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Smoke:&ensp;</b></span></td>
+      <td><span id="smoke" class="out">%SMOKE%</span></td>
+    </tr>
+  </table>
 
-  <p>
-    <span class="sensor-labels1"><b>Environment Temperature:&ensp;</b></span>
-    <span id="temperature" class="out">%TEMPERATURE%</span>
-    <sup class="units">&deg;C</sup>
-  </p>
+  <br><br>
 
-  <p>
-    <span class="sensor-labels1"><b>Environment Humidity:&ensp;</b></span>
-    <span id="humidity" class="out">%HUMIDITY%</span>
-    <sup class="units">&#37;</sup>
-  </p>
-
-  <p>
-    <span class="info">(smoke is 1 = Smoke Detect)</span><br>
-    <span class="info">(smoke is 2 = Smoke Normal)</span><br>
-    <span class="sensor-labels"><b>Smoke:&ensp;</b></span>
-    <span id="smoke" class="out">%SMOKE%</span>
-  </p>
+  <table class="bdy">
+    <thead>
+      <tr>
+      <th colspan="2"><div class="Thead">Body</div></th>
+      </tr>
+    </thead>
+    <tr>
+      <td class="tname">Name</td>
+      <td class="tname">Value</td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Temperature:</b></span></td>
+      <td><span id="btemperature" class="out">%BTEMPERATURE%</span></td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>BPM:</b></span></td>
+      <td><span id="bpm" class="out">%BPM%</span></td>
+    </tr>
+  </table>
+  
 </body>
 <script>
 
@@ -68,6 +96,28 @@
       }
     };
     xhttp.open("GET", "/smoke", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("btemperature").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/btemperature", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("bpm").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/bpm", true);
     xhttp.send();
   }, 10000 ) ;
 </script>
