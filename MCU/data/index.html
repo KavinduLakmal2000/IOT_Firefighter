@@ -37,6 +37,17 @@
       <td><span class="sensor-labels"><b>Smoke:&ensp;</b></span></td>
       <td><span id="smoke" class="out">%SMOKE%</span></td>
     </tr>
+    <tr>
+      <td colspan="2"><div class="Thead">Location</div></td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Longitude:</b></span></td>
+      <td><span id="lng" class="out">%LNG%</span></td>
+    </tr>
+    <tr>
+      <td><span class="sensor-labels"><b>Latitude:</b></span></td>
+      <td><span id="lat" class="out">%LAT%</span></td>
+    </tr>
   </table>
 
   <br><br>
@@ -60,12 +71,10 @@
       <td><span id="bpm" class="out">%BPM%</span></td>
     </tr>
   </table>
-  
+
 </body>
 <script>
-
   
-
   setInterval(function ( ) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -120,5 +129,50 @@
     xhttp.open("GET", "/bpm", true);
     xhttp.send();
   }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("lng").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/lng", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("lat").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/lat", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  var soos = ("%SOS%");
+
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        soos = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/sos", true);
+    xhttp.send();
+    if (soos == 2){
+      gosos();
+    }
+  }, 5000 ) ;
+
+  function gosos(){
+      location.replace("sos.html");
+     } 
+
 </script>
 </html>

@@ -4,6 +4,11 @@
 #include <ESP8266WiFi.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
+
+TinyGPSPlus gps;  
+SoftwareSerial ss(4, 5);
 
 #define DHTPIN 2     
 #define DHTTYPE DHT11    
@@ -21,10 +26,14 @@ const int http_port = 80;
 const int ws_port = 1337;
 String Buzzer_State;
 
+float latitude , longitude;
+String lat_str , lng_str;
+
 const int Buzzer_pin = 16;
-const int smoke_pin = 14; //smoke detect 0 or 1
-const int body_temp = 12; //body temperature (too high or normal)
+const int smoke_pin = 14; //smoke detect 0 or 1 (connect primini pin 5)
+const int body_temp = A0; //body temperature 
 const int sos_button = 13;
+const int aroundTemp = 15;
 
 
 
@@ -51,31 +60,7 @@ void onWebSocketEvent(uint8_t client_num,
         Serial.println(ip.toString());
       }
       break;
-  /*
-    case WStype_TEXT:
 
-     
-      Serial.printf("[%u] Received text: %s\n", client_num, payload);
-
-      
-      if ( strcmp((char *)payload, "toggleLED") == 0 ) {
-        led_state = led_state ? 0 : 1;
-        Serial.printf("Toggling LED to %u\n", led_state);
-        digitalWrite(led_pin, led_state);
-
-      // Report the state of the LED
-      } else if ( strcmp((char *)payload, "getLEDState") == 0 ) {
-        sprintf(msg_buf, "%d", led_state);
-        Serial.printf("Sending to [%u]: %s\n", client_num, msg_buf);
-        webSocket.sendTXT(client_num, msg_buf);
-
-      } else {
-        Serial.println("[%u] Message not recognized");
-      }
-      break;
-      */
-
-    // For everything else: do nothing
     case WStype_BIN:
     case WStype_ERROR:
     case WStype_FRAGMENT_TEXT_START:
@@ -87,7 +72,7 @@ void onWebSocketEvent(uint8_t client_num,
   }
 }
 
-// Callback: send homepage
+// send homepage
 void onIndexRequest(AsyncWebServerRequest *request) {
   IPAddress remote_ip = request->client()->remoteIP();
   Serial.println("[" + remote_ip.toString() +
@@ -95,7 +80,15 @@ void onIndexRequest(AsyncWebServerRequest *request) {
   request->send(SPIFFS, "/index.html", "text/html");
 }
 
-// Callback: send style sheet
+// send sos page
+void onsosRequest(AsyncWebServerRequest *request) {
+  IPAddress remote_ip = request->client()->remoteIP();
+  Serial.println("[" + remote_ip.toString() +
+                  "] HTTP GET request of " + request->url());
+  request->send(SPIFFS, "/sos.html", "text/html");
+}
+
+// send style sheet
 void onCSSRequest(AsyncWebServerRequest *request) {
   IPAddress remote_ip = request->client()->remoteIP();
   Serial.println("[" + remote_ip.toString() +
@@ -103,7 +96,8 @@ void onCSSRequest(AsyncWebServerRequest *request) {
   request->send(SPIFFS, "/style.css", "text/css");
 }
 
-// Callback: send 404 if requested file does not exist
+
+// send 404 if requested file does not exist  onsosRequest
 void onPageNotFound(AsyncWebServerRequest *request) {
   IPAddress remote_ip = request->client()->remoteIP();
   Serial.println("[" + remote_ip.toString() +
@@ -113,13 +107,19 @@ void onPageNotFound(AsyncWebServerRequest *request) {
 ///////////////////////////////////////////////////////////////////////// send data to web server
 String getTemperature() {
   
-  float temperature = 60; //dht.readTemperature();
+  float temperature = dht.readTemperature();
   Serial.println(temperature);
   return String(temperature);
+  if (temperature < 50){
+    digitalWrite(aroundTemp,HIGH);
+  }
+  else{
+    digitalWrite(aroundTemp,LOW);
+  }
 }
   
 String getHumidity() {
-  float humidity = 70; // dht.readHumidity();
+  float humidity = dht.readHumidity();
   Serial.println(humidity);
   return String(humidity);
 }
@@ -129,7 +129,7 @@ String getSmoke(){
     return String(1);
   }
   else{
-    return String(2);
+    return String(0);
   }
 }
 
@@ -139,11 +139,46 @@ String getBPM(){
 }
 
 String  getB_Temperature(){
-  if(digitalRead(body_temp)){
-    return String(3);
+  float b_temp = analogRead(body_temp);
+  return String(b_temp);
+}
+
+String getlng(){
+  while (ss.available() > 0){
+    if (gps.encode(ss.read()))
+    {
+      if (gps.location.isValid())
+      {
+        longitude = gps.location.lng();
+        lng_str = String(longitude , 6);
+        return String(lng_str);
+      }
+    }
+  } 
+}
+
+String getlat(){
+  while (ss.available() > 0){
+    if (gps.encode(ss.read()))
+    {
+      if (gps.location.isValid())
+      {
+        latitude = gps.location.lat();
+        lat_str = String(latitude , 6);
+        return String(lat_str);
+      }
+    }
+  }
+}
+
+String getSOS(){
+  if(digitalRead(sos_button)){
+    return String(2);
+    digitalWrite(Buzzer_pin,HIGH);
   }
   else{
-    return String(4);
+    return String(3);
+    digitalWrite(Buzzer_pin,LOW);
   }
 }
 
@@ -176,6 +211,15 @@ String processor(const String& var){
   else if(var == "BPM"){
     return getBPM();
   }
+  else if(var == "LNG"){
+    return getlng();
+  }
+  else if (var == "LAT"){
+    return getlat();
+  }
+  else if (var == "SOS"){
+    return getSOS();
+  }
    
 }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +234,7 @@ void setup() {
   digitalWrite(Buzzer_pin, LOW);
 
   Serial.begin(115200);
+  ss.begin(9600);
 
   if( !SPIFFS.begin()){
     Serial.println("Error mounting SPIFFS");
@@ -206,7 +251,9 @@ void setup() {
 
   
   server.on("/", HTTP_GET, onIndexRequest);
+  server.on("/index.html", HTTP_GET, onIndexRequest);
   server.on("/style.css", HTTP_GET, onCSSRequest);
+  server.on("/sos.html", HTTP_GET, onsosRequest);
   server.onNotFound(onPageNotFound);
 
   server.begin();
@@ -214,7 +261,6 @@ void setup() {
   webSocket.begin();
   webSocket.onEvent(onWebSocketEvent);
 
-/////////////////////////////////////////////////////////////////////////////// get data from web server
 
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(Buzzer_pin, HIGH);    
@@ -245,6 +291,18 @@ void setup() {
   server.on("/bpm", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", getBPM().c_str(),processor);
   });
+
+  server.on("/lng", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getlng().c_str(),processor);
+  });
+
+  server.on("/lat", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getlat().c_str(),processor);
+  });
+
+  server.on("/sos", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getSOS().c_str(),processor);
+  });
   
 ///////////////////////////////////////////////////////////////////////////////
   
@@ -252,5 +310,8 @@ void setup() {
 
 void loop() {
   webSocket.loop();
+  getlng();
+  getlat();
+ 
   
 }

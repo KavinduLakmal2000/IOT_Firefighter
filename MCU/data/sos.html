@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SOS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="data:,">
+        
+        <script>
+             function goindex(){
+      location.replace("index.html");
+
+      setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("lng").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/lng", true);
+    xhttp.send();
+  }, 10000 ) ;
+
+  setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("lat").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/lat", true);
+    xhttp.send();
+  }, 10000 ) ;
+  
+     } 
+        </script>
+
+        <style>
+            .sos{
+                background-color: rgb(255, 170, 0);
+            }
+            .button1{
+            margin-left: 50%;
+            margin-right: 50%;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            }
+            
+            .mid{
+               text-align: center;
+            }
+            .sosAlert{
+                color: rgb(255, 0, 0);
+            }
+            .Thead{
+            text-align: center;
+            font-weight: bold;
+            }
+            table{
+                margin-left: auto; 
+            margin-right: auto;
+            border-collapse: collapse;
+            color: rgb(0, 0, 0);
+            }
+            table, th, td {
+            border: 1px solid #ffffff;
+            border-collapse: collapse;
+            }
+            th, td {
+            background-color: #75aceb;
+            }
+           
+        </style>
+
+    </head>
+    <body class="sos">
+<div class="mid">
+    <h1 class="sosAlert">SOS Alert From FireFighter !</h1>
+
+    <table>
+        <tr>
+            <td colspan="2"><div class="Thead">Location</div></td>
+          </tr>
+          <tr>
+            <td><span class="sensor-labels"><b>Longitude:</b></span></td>
+            <td><span id="lng" class="out">%LNG%</span></td>
+          </tr>
+          <tr>
+            <td><span class="sensor-labels"><b>Latitude:</b></span></td>
+            <td><span id="lat" class="out">%LAT%</span></td>
+          </tr>
+          </table>
+
+          <br>
+
+        <button onclick="goindex()" class="button1">Back to Dashboard</button>
+
+        </div>
+    </body>
+</html>
