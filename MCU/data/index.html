@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FireFighter Control Panel</title>
+  <title>FireFighter Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" type="text/css" href="style.css">
+  <script type="text/javascript" src="java_s.js"></script>
 </head>
 <body>
-  <span class="head"><b>Firefighter Dashboard</b></span>
+  <span class="head"><b>Phoenix</b></span>
   <p><b class="sos">Emergency SOS: </b><span class="out1">%STATE%</span></p>
 
   <p>
@@ -27,11 +28,13 @@
     </tr>
     <tr>
       <td><span class="sensor-labels"><b>Temperature:</b></span></td>
-      <td><span id="temperature" class="out">%TEMPERATURE%</span></td>
+      <td><span id="temperature" class="out">%TEMPERATURE%</span><sup class="units">&deg;C</sup></td>
+      
     </tr>
     <tr>
       <td><span class="sensor-labels"><b>Humidity:</b></span></td>
-      <td><span id="humidity" class="out">%HUMIDITY%</span></td>
+      <td><span id="humidity" class="out">%HUMIDITY%</span><sup class="units">&#37;</sup></td>
+      
     </tr>
     <tr>
       <td><span class="sensor-labels"><b>Smoke:&ensp;</b></span></td>
@@ -64,7 +67,7 @@
     </tr>
     <tr>
       <td><span class="sensor-labels"><b>Temperature:</b></span></td>
-      <td><span id="btemperature" class="out">%BTEMPERATURE%</span></td>
+      <td><span id="btemperature" class="out">%BTEMPERATURE%</span><sup class="units">&deg;C</sup></td>
     </tr>
     <tr>
       <td><span class="sensor-labels"><b>BPM:</b></span></td>
@@ -73,106 +76,4 @@
   </table>
 
 </body>
-<script>
-  
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("temperature").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/temperature", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("humidity").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/humidity", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("smoke").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/smoke", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("btemperature").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/btemperature", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("bpm").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/bpm", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("lng").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/lng", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("lat").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/lat", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  var soos = ("%SOS%");
-
-
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        soos = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/sos", true);
-    xhttp.send();
-    if (soos == 2){
-      gosos();
-    }
-  }, 5000 ) ;
-
-  function gosos(){
-      location.replace("sos.html");
-     } 
-
-</script>
 </html>

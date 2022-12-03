@@ -4,12 +4,8 @@
         <title>SOS</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" href="data:,">
-        
         <script>
-             function goindex(){
-      location.replace("index.html");
-
-      setInterval(function ( ) {
+             setInterval(function ( ) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
@@ -30,8 +26,10 @@
     xhttp.open("GET", "/lat", true);
     xhttp.send();
   }, 10000 ) ;
-  
-     } 
+
+  function goindex(){
+        location.replace("index.html");
+    }
         </script>
 
         <style>

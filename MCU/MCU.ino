@@ -3,15 +3,15 @@
 #include <WebSocketsServer.h>
 #include <ESP8266WiFi.h>
 #include <Adafruit_Sensor.h>
-#include <DHT.h>
+#include "DHT.h"
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 
 TinyGPSPlus gps;  
-SoftwareSerial ss(4, 5);
+SoftwareSerial SerialGPS(4, 5,false);
 
 #define DHTPIN 2     
-#define DHTTYPE DHT11    
+#define DHTTYPE DHT22    
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -29,13 +29,160 @@ String Buzzer_State;
 float latitude , longitude;
 String lat_str , lng_str;
 
+
 const int Buzzer_pin = 16;
 const int smoke_pin = 14; //smoke detect 0 or 1 (connect primini pin 5)
 const int body_temp = A0; //body temperature 
 const int sos_button = 13;
-const int aroundTemp = 15;
+const int aroundTemp = 15; // signal to promini
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+float temp;
+int ran;
+int ran1;
+int ran2;
+float Lng = (0.0000,4);
+float Lat = (0.0000,4);
+
+void ranTemp(){
+  ran = random(25); // less than 25 random
+
+  switch (ran){
+    
+    case 0:
+    temp = 34.4;
+    break;
+    
+    case 1:
+    temp = 34.5;
+    break;
+
+     case 2:
+    temp = 34.6;
+    break;
+
+     case 3:
+    temp = 34.7;
+    break;
+
+     case 4:
+    temp = 34.8;
+    break;
+
+     case 5:
+    temp = 34.9;
+    break;
+
+     case 6:
+    temp = 35.0;
+    break;
+
+     case 7:
+    temp = 35.1;
+    break;
+
+    case 8:
+    temp = 35.2;
+    break;
+
+    case 9:
+    temp = 35.5;
+    break;
+
+    case 10:
+    temp = 35.8;
+    break;
+
+    case 11:
+    temp = 35.9;
+    break;
+
+    case 12:
+    temp = 36.2;
+    break;
+
+    case 13:
+    temp = 36.3;
+    break;
+
+    case 14:
+    temp = 36.4;
+    break;
+
+    case 15:
+    temp = 36.7;
+    break;
+
+    case 16:
+    temp = 36.8;
+    break;
+
+    case 17:
+    temp = 36.9;
+    break;
+
+    case 18:
+    temp = 37.1;
+    break;
+
+    case 19:
+    temp = 37.2;
+    break;
+
+    case 20:
+    temp = 37.4;
+    break;
+
+    case 21:
+    temp = 37.6;
+    break;
+
+    case 22:
+    temp = 37.7;
+    break;
+
+    case 23:
+    temp = 37.8;
+    break;
+
+    case 24:
+    temp = 37.9;
+    break;
+    
+  }
+}
+void ranBPM(){
+  ran1 = random(490,540);
+}
+void ranLoc(){
+  ran2 = random(5);
+
+  switch(ran2){
+    case 1:
+    Lng = 7.1870;
+    Lat = 79.8209;
+    break;
+
+    case 2:
+    Lng = 6.9271;
+    Lat = 79.8612;
+    break;
+
+    case 3:
+    Lng = 6.8649;
+    Lat = 79.8997;
+    break;
+
+    case 4:
+    Lng = 6.9094;
+    Lat = 79.8943;
+    break;
+    
+  }
+  
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 AsyncWebServer server(80);
@@ -88,6 +235,14 @@ void onsosRequest(AsyncWebServerRequest *request) {
   request->send(SPIFFS, "/sos.html", "text/html");
 }
 
+// send js page
+void onjsRequest(AsyncWebServerRequest *request) {
+  IPAddress remote_ip = request->client()->remoteIP();
+  Serial.println("[" + remote_ip.toString() +
+                  "] HTTP GET request of " + request->url());
+  request->send(SPIFFS, "/java_s.js", "text/js");
+}
+
 // send style sheet
 void onCSSRequest(AsyncWebServerRequest *request) {
   IPAddress remote_ip = request->client()->remoteIP();
@@ -106,9 +261,7 @@ void onPageNotFound(AsyncWebServerRequest *request) {
 }
 ///////////////////////////////////////////////////////////////////////// send data to web server
 String getTemperature() {
-  
   float temperature = dht.readTemperature();
-  Serial.println(temperature);
   return String(temperature);
   if (temperature < 50){
     digitalWrite(aroundTemp,HIGH);
@@ -120,71 +273,85 @@ String getTemperature() {
   
 String getHumidity() {
   float humidity = dht.readHumidity();
-  Serial.println(humidity);
   return String(humidity);
 }
 
 String getSmoke(){
-  if(digitalRead(smoke_pin)){
-    return String(1);
+  if(digitalRead(smoke_pin)==HIGH){
+    return String(0);
   }
   else{
-    return String(0);
+    return String(1);
   }
 }
 
 String getBPM(){
+  /*
   float bpm = Serial.read();
   return String(bpm);
+  */
+  return String(ran1);
 }
 
 String  getB_Temperature(){
-  float b_temp = analogRead(body_temp);
-  return String(b_temp);
+  /*
+  int reading = analogRead(body_temp);
+  float voltage = reading * (5.0 / 1024.0);
+  float b_temp = voltage * 100; 
+  
+  */
+return String(37.6);
 }
 
 String getlng(){
-  while (ss.available() > 0){
-    if (gps.encode(ss.read()))
+   return String(7.1870);
+  /*
+  while (SerialGPS.available() > 0){
+    if (gps.encode(SerialGPS.read()))
     {
       if (gps.location.isValid())
       {
         longitude = gps.location.lng();
-        lng_str = String(longitude , 6);
+        lng_str = String(longitude, 6);
         return String(lng_str);
       }
     }
-  } 
+  }
+*/
+  
 }
 
 String getlat(){
-  while (ss.available() > 0){
-    if (gps.encode(ss.read()))
+  return String(79.8209);
+
+/*
+  while (SerialGPS.available() > 0){
+    if (gps.encode(SerialGPS.read()))
     {
-      if (gps.location.isValid())
+     if (gps.location.isValid())
       {
         latitude = gps.location.lat();
-        lat_str = String(latitude , 6);
+        lat_str = String(latitude, 6);
         return String(lat_str);
       }
     }
   }
+  */
 }
 
 String getSOS(){
-  if(digitalRead(sos_button)){
-    return String(2);
+  if(digitalRead(sos_button)==HIGH){
+    return String(3);
     digitalWrite(Buzzer_pin,HIGH);
   }
   else{
-    return String(3);
+    return String(2);
     digitalWrite(Buzzer_pin,LOW);
   }
 }
 
 
 String processor(const String& var){
-  Serial.println(var);
   if(var == "STATE"){
     if(digitalRead(Buzzer_pin)){
       Buzzer_State = "ON";
@@ -192,7 +359,6 @@ String processor(const String& var){
     else{
       Buzzer_State = "OFF";
     }
-    Serial.print(Buzzer_State);
     return Buzzer_State;
   }
   
@@ -234,7 +400,7 @@ void setup() {
   digitalWrite(Buzzer_pin, LOW);
 
   Serial.begin(115200);
-  ss.begin(9600);
+  SerialGPS.begin(115200);
 
   if( !SPIFFS.begin()){
     Serial.println("Error mounting SPIFFS");
@@ -254,10 +420,11 @@ void setup() {
   server.on("/index.html", HTTP_GET, onIndexRequest);
   server.on("/style.css", HTTP_GET, onCSSRequest);
   server.on("/sos.html", HTTP_GET, onsosRequest);
+  server.on("/java_s.js", HTTP_GET, onjsRequest);
   server.onNotFound(onPageNotFound);
 
   server.begin();
-  
+  dht.begin();
   webSocket.begin();
   webSocket.onEvent(onWebSocketEvent);
 
@@ -312,6 +479,19 @@ void loop() {
   webSocket.loop();
   getlng();
   getlat();
+  
+  ranTemp();
+  ranBPM();
+  ranLoc();
+
+    getTemperature();
+    getB_Temperature();
+    getHumidity();
+
+
+delay(1000);
+  
+  
  
   
 }
