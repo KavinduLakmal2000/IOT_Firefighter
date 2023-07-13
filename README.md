@@ -1,4 +1,4 @@
-# IOT_Firefighter
+# Smart_Firefighter
 2022_IOT_project
 ![WhatsApp Image 2022-06-05 at 10 45 04 AM](https://user-images.githubusercontent.com/87576012/205452670-115ba40d-f35f-43a5-95cf-ce99eba916d0.jpeg)
 ![1222](https://user-images.githubusercontent.com/87576012/205452673-724742b5-040c-4170-82ac-1623d34661b5.jpg)
